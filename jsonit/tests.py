@@ -1,7 +1,6 @@
-from datetime import datetime
+import datetime
 from unittest import TestCase
 
-from django.conf import settings
 from django.contrib import messages
 from django.contrib.messages.constants import DEFAULT_TAGS
 from django.contrib.messages.storage import base as messages_base
@@ -76,8 +75,16 @@ class EncoderTest(TestCase):
         test_msg = lazy(lambda: 'Test!', unicode)
         self.assertEqual(encode(test_msg()), '"Test!"')
 
+    def test_datetime(self):
+        self.assertEqual(encode(datetime.datetime(1980, 1, 1, 12, 0, 5)),
+                         '"1980-01-01T12:00:05"')
+
+    def test_date(self):
+        self.assertEqual(encode(datetime.date(1980, 1, 1)),
+                         '"1980-01-01"')
+
     def test_custom_encoder(self):
         encode_dt = lambda d: d.strftime('%d %b %Y')
-        self.assertEqual(encode(datetime(1980, 1, 1),
-                                encoders={datetime: encode_dt}),
+        self.assertEqual(encode(datetime.datetime(1980, 1, 1),
+                                encoders={datetime.datetime: encode_dt}),
                          '"01 Jan 1980"')

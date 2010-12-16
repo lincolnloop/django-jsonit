@@ -1,3 +1,4 @@
+import datetime
 import json
 
 from django.conf import settings
@@ -13,6 +14,8 @@ class JsonitEncoder(json.JSONEncoder):
     default_encoders = {
         Promise: unicode,
         Message: encode_message,
+        datetime.datetime: lambda d: d.isoformat(),
+        datetime.date: lambda d: d.isoformat(),
     }
 
     def __init__(self, *args, **kwargs):
