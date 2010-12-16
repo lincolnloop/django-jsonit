@@ -48,7 +48,7 @@ class JSONResponse(http.HttpResponse):
     """
     Return a JSON encoded HTTP response.
     """
-    
+
     def __init__(self, request, details=None, success=True, exception=None):
         """
         :param request: The current ``HTTPRequest``. Required so that any
@@ -86,13 +86,17 @@ class JSONResponse(http.HttpResponse):
                 exception = '%s: %s' % (_('Internal error'), exception)
             content['exception'] = exception
         elif self.request:
-            content['messages'] = messages.get_messages(self.request)
+            content['messages'] = self.get_messages()
         try:
             return json.dumps(content)
         except Exception, e:
             if exception is not None:
                 raise
             return self.build_json(e)
+
+    def get_messages(self):
+        return messages.get_messages(self.request)
+
 
 
 class JSONFormResponse(JSONResponse):
@@ -124,7 +128,7 @@ class JSONFormResponse(JSONResponse):
             ]
         }
     """
-    
+
     def __init__(self, *args, **kwargs):
         """
         In addition to the standard :class:`JSONResponse` arguments, one
