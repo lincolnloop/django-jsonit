@@ -38,10 +38,10 @@ An example exception::
 If the project's ``DEBUG`` setting is ``False``, exception will just be set to
 ``True``.
 """
-import json
-
 from django import http
 from django.contrib import messages
+
+from jsonit.encoder import encode
 
 
 class JSONResponse(http.HttpResponse):
@@ -88,7 +88,7 @@ class JSONResponse(http.HttpResponse):
         elif self.request:
             content['messages'] = self.get_messages()
         try:
-            return json.dumps(content)
+            return encode(content)
         except Exception, e:
             if exception is not None:
                 raise
