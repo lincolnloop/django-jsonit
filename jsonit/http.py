@@ -95,7 +95,7 @@ class JSONResponse(http.HttpResponse):
             return self.build_json(e)
 
     def get_messages(self):
-        return messages.get_messages(self.request)
+        return list(messages.get_messages(self.request))
 
 
 
