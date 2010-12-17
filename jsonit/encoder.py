@@ -7,7 +7,7 @@ from django.utils.functional import Promise
 
 
 def encode_message(message):
-    return {'tags': message.tags, 'message': message.message}
+    return {'class': message.tags, 'message': message.message}
 
 
 class JsonitEncoder(json.JSONEncoder):
