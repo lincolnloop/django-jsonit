@@ -10,7 +10,12 @@ details
 
 messages
     A list of message dictionaries. Each message dictionary contains a
-    ``class`` (a string of HTML classes) and a ``message`` key.
+    ``class`` (a string of HTML classes) and a ``message`` key. This list will
+    always be empty for successful responses where a if a suggested redirection
+    URL is provided.
+
+If the response is successful then an additional key, ``redirect`` will also
+be provided which may be ``null` or contain a suggested next URL.
 
 An example success::
 
@@ -19,7 +24,8 @@ An example success::
         'details': {},
         'messages': [
             {'class': '', 'message': 'some message'},
-        ]
+        ],
+        'redirect': null
     }
 
 If an exception is passed (via the ``exception`` parameter), ``details`` and
@@ -49,7 +55,8 @@ class JSONResponse(http.HttpResponse):
     Return a JSON encoded HTTP response.
     """
 
-    def __init__(self, request, details=None, success=True, exception=None):
+    def __init__(self, request, details=None, success=True, exception=None,
+                 redirect=None):
         """
         :param request: The current ``HTTPRequest``. Required so that any
             ``django.contrib.messages`` can be retrieved.
@@ -61,14 +68,21 @@ class JSONResponse(http.HttpResponse):
             usually needed unless the need to handle exceptions manually
             arises. See the :class:`JSONExceptionMiddleware` to handle AJAX
             exceptions automatically.
+        :param redirect: The URL to which the JavaScript should redirect (if
+            :attr:`success` is ``True``). If provided, messages will not be
+            consumed for successful responses.
         :returns: An HTTPResponse containing a JSON encoded dictionary with a
             content type of ``application/json``.
         """
         self.request = request
         self.success = success
         self.details = details or {}
+        if redirect is not None:
+            redirect = request.build_absolute_url(redirect)
+        self.redirect = redirect
         assert isinstance(self.details, dict)
-        super(JSONResponse, self).__init__(content=self.build_json(exception),
+        content = self.build_json(exception)
+        super(JSONResponse, self).__init__(content=content,
                                            content_type='application/json')
 
     def build_json(self, exception=None):
@@ -85,8 +99,10 @@ class JSONResponse(http.HttpResponse):
             else:
                 exception = '%s: %s' % (_('Internal error'), exception)
             content['exception'] = exception
-        elif self.request:
+        else:
             content['messages'] = self.get_messages()
+            if self.success and self.redirect:
+                content['redirect'] = self.redirect
         try:
             return encode(content)
         except Exception, e:
@@ -95,6 +111,8 @@ class JSONResponse(http.HttpResponse):
             return self.build_json(e)
 
     def get_messages(self):
+        if self.success and self.redirect:
+            return []
         return list(messages.get_messages(self.request))
 
 
