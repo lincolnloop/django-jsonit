@@ -78,7 +78,7 @@ class JSONResponse(http.HttpResponse):
         self.success = success
         self.details = details or {}
         if redirect is not None:
-            redirect = request.build_absolute_url(redirect)
+            redirect = request.build_absolute_uri(redirect)
         self.redirect = redirect
         assert isinstance(self.details, dict)
         content = self.build_json(exception)
