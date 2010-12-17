@@ -1,12 +1,10 @@
-from jsonit.http import JSONResponse, JSONFormResponse
-
 VERSION = (1, 0, 'alpha')
 
 
 def get_version(major=None):
     """
     Return the current version as a string.
-    
+
     :param major: Build the major version, consisting of a maximum of this
         many integer parts. For example, ``get_version(major=2)`` for a version
         of ``(1, 0, 4)`` will return ``'1.0'``.
