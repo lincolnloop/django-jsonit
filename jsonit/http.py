@@ -98,7 +98,6 @@ class JSONResponse(http.HttpResponse):
         return list(messages.get_messages(self.request))
 
 
-
 class JSONFormResponse(JSONResponse):
     """
     Return a JSON response, handling form errors.
@@ -136,15 +135,15 @@ class JSONFormResponse(JSONResponse):
         
         :param forms: A list of forms to validate against.
         """
+        self.forms = kwargs.pop('forms')
         super(JSONFormResponse, self).__init__(*args, **kwargs)
-        self.forms = kwargs.get('forms')
 
     def build_json(self, *args, **kwargs):
         """
         Check for form errors before building the JSON dictionary. 
         """
         self.get_form_errors()
-        super(JSONFormResponse, self).build_json(*args, **kwargs)
+        return super(JSONFormResponse, self).build_json(*args, **kwargs)
 
     def get_form_errors(self):
         """
@@ -159,8 +158,8 @@ class JSONFormResponse(JSONResponse):
             for field, errors in form.errors.items():
                 self.success = False
                 if field is not '__all__':
-                    field = form.fields[field].auto_id
+                    field = form[field].auto_id
                 if field:
-                    form_errors = self.details.setdefault('form_errors', [])
+                    form_errors = self.details.setdefault('form_errors', {})
                     error_list = form_errors.setdefault(field, [])
                     error_list.extend(errors)
