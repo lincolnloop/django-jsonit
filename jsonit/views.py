@@ -85,6 +85,8 @@ class JSONResponseMixin(object):
         kwargs = {'details': details}
         if self.json_success is not None:
             kwargs['success'] = self.json_success
+        if redirect is not None:
+            kwargs['redirect'] = redirect
         forms = self.get_forms(*forms)
         if forms:
             json_response_class = JSONFormResponse
@@ -104,9 +106,9 @@ class AJAXMixin(AJAXTemplateResponseMixin, JSONResponseMixin):
     """
 
 
-class AJAXFormMixin(AJAXMixin):
+class AJAXFormView(AJAXMixin):
     """
-    A mixin for Django generic form views which will return a
+    A mixin view for Django generic form views which will return a
     :class:`JSONFormResponse` for AJAX initiated ``POST`` requests (and also
     look for alternate AJAX versions of templates).
 
@@ -115,23 +117,15 @@ class AJAXFormMixin(AJAXMixin):
     """
     ajax_redirect = True
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
         """
         If the request was AJAX initiated, return a :class:`JSONFormResponse`.
-
-        The super ``form_valid`` method is always called.
         """
-        kwargs = {'forms': [form]}
-        response = super(AJAXFormMixin, self).form_valid(form)
-        if self.ajax_redirect and response.status_code in ('301', '302'):
+        response = super(AJAXFormView, self).post(request, *args, **kwargs)
+        if not request.is_ajax():
+            return response
+        form_class = self.get_form_class()
+        kwargs = {'forms': [self.get_form(form_class)]}
+        if self.ajax_redirect and str(response.status_code) in ('301', '302'):
             kwargs['redirect'] = response['Location']
         return self.get_json_response(response, **kwargs)
-
-    def form_invalid(self, form):
-        """
-        If the request was AJAX initiated, return a :class:`JSONFormResponse`.
-
-        The super ``form_invalid`` method is always called.
-        """
-        response = super(AJAXFormMixin, self).form_invalid(form)
-        return self.get_json_response(response, forms=[form])
