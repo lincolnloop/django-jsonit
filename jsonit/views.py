@@ -129,7 +129,7 @@ class AJAXFormMixin(AJAXMixin):
             kwargs = {'forms': [form]}
             if self.ajax_redirect:
                 kwargs['redirect'] = self.get_success_url()
-            return self.get_json_response(response, [form])
+            return self.get_json_response(response, **kwargs)
         return response
 
     def form_invalid(self, form):
