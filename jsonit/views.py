@@ -22,8 +22,13 @@ class AJAXTemplateResponseMixin(object):
         ['custom/login.ajax.html', 'login.ajax.html',
          'custom/login.html', 'login.html']
 
-    For views which use :meth:`get_context_data`, the ``is_ajax`` context
-    variable is set to ``True`` for AJAX requests.
+    For views which use :meth:`get_context_data`, two extra context variables
+    are added for AJAX requests:
+    
+    ``is_ajax``
+        Set to ``True``
+    ``current_url``
+        The current URL, useful for explicitly setting HTML form ``action``s.
     """
     ajax_template_format = '%(name)s.ajax%(ext)s'
 
@@ -48,6 +53,7 @@ class AJAXTemplateResponseMixin(object):
                                                                     **kwargs)
         if self.request.is_ajax():
             data['is_ajax'] = True
+            data['current_url'] = self.request.get_full_path()
         return data
 
 
