@@ -1,7 +1,5 @@
 import os
 
-from django import http
-
 from jsonit.http import JSONFormResponse, JSONResponse
 
 
@@ -24,7 +22,7 @@ class AJAXTemplateResponseMixin(object):
 
     For views which use :meth:`get_context_data`, two extra context variables
     are added for AJAX requests:
-    
+
     ``is_ajax``
         Set to ``True``
     ``current_url``
@@ -113,24 +111,21 @@ class AJAXFormMixin(AJAXMixin):
     look for alternate AJAX versions of templates).
 
     If the :attr:`ajax_redirect` attribute is set to ``True`` (default), a
-    successful JSON response will include the :meth:`get_success_url` result.
+    successful JSON response will include the redirection URL.
     """
     ajax_redirect = True
 
     def form_valid(self, form):
         """
-        If the request was AJAX initiated and the response is a redirection
-        then return a :class:`JSONFormResponse`.
+        If the request was AJAX initiated, return a :class:`JSONFormResponse`.
 
         The super ``form_valid`` method is always called.
         """
+        kwargs = {'forms': [form]}
         response = super(AJAXFormMixin, self).form_valid(form)
-        if isinstance(response, http.HttpResponseRedirect):
-            kwargs = {'forms': [form]}
-            if self.ajax_redirect:
-                kwargs['redirect'] = self.get_success_url()
-            return self.get_json_response(response, **kwargs)
-        return response
+        if self.ajax_redirect and response.status_code in ('301', '302'):
+            kwargs['redirect'] = response['Location']
+        return self.get_json_response(response, **kwargs)
 
     def form_invalid(self, form):
         """
