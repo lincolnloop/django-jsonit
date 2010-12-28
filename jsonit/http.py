@@ -68,9 +68,7 @@ class JSONResponse(http.HttpResponse):
             usually needed unless the need to handle exceptions manually
             arises. See the :class:`JSONExceptionMiddleware` to handle AJAX
             exceptions automatically.
-        :param redirect: The URL to which the JavaScript should redirect (if
-            :attr:`success` is ``True``). If provided, messages will not be
-            consumed for successful responses.
+        :param redirect: The URL to which the JavaScript should redirect.
         :returns: An HTTPResponse containing a JSON encoded dictionary with a
             content type of ``application/json``.
         """
@@ -101,7 +99,8 @@ class JSONResponse(http.HttpResponse):
             content['exception'] = exception
         else:
             content['messages'] = self.get_messages()
-            if self.success and self.redirect:
+            redirect = self.get_redirect()
+            if redirect:
                 content['redirect'] = self.redirect
         try:
             return encode(content)
@@ -111,9 +110,22 @@ class JSONResponse(http.HttpResponse):
             return self.build_json(e)
 
     def get_messages(self):
+        """
+        Consume and return a list of the user's messages, unless this is a
+        redirection (in which case, return an empty list).
+        """
         if self.success and self.redirect:
             return []
         return list(messages.get_messages(self.request))
+
+    def get_redirect(self):
+        """
+        Return the redirection URL, as long as this is a successful
+        response (i.e. :attr:`success` is ``True``).
+        """
+        if not self.success:
+            return None
+        return self.redirect
 
 
 class JSONFormResponse(JSONResponse):
