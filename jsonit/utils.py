@@ -31,5 +31,6 @@ def ajax_aware_render(request, template_list, context=None, **kwargs):
             ajax_template_list.append('%s.ajax%s' % os.path.splitext(name))
         template_list = ajax_template_list + list(template_list)
         context['is_ajax'] = True
+        context['current_url'] = request.get_full_path()
     template = loader.select_template(template_list)
     return HttpResponse(template.render(context), **kwargs)
