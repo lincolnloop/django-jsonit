@@ -56,7 +56,7 @@ class JSONResponse(http.HttpResponse):
     """
 
     def __init__(self, request, details=None, success=True, exception=None,
-                 redirect=None):
+                 redirect=None, extra_context=None):
         """
         :param request: The current ``HTTPRequest``. Required so that any
             ``django.contrib.messages`` can be retrieved.
@@ -77,6 +77,7 @@ class JSONResponse(http.HttpResponse):
         self.request = request
         self.success = success
         self.details = details or {}
+        self.extra_context = extra_context or {}
         if redirect is not None:
             redirect = request.build_absolute_uri(redirect)
         self.redirect = redirect
@@ -103,6 +104,8 @@ class JSONResponse(http.HttpResponse):
             content['messages'] = self.get_messages()
             if self.success and self.redirect:
                 content['redirect'] = self.redirect
+        if self.extra_context:
+            content['extra_context'] = self.extra_context
         try:
             return encode(content)
         except Exception, e:
@@ -119,10 +122,10 @@ class JSONResponse(http.HttpResponse):
 class JSONFormResponse(JSONResponse):
     """
     Return a JSON response, handling form errors.
-    
+
     Accepts a ``forms`` keyword argument which should be a list of forms to
     be validated.
-    
+
     If any of the forms contain errors, a ``form_errors`` key
     will be added to the ``details`` dictionary, containing the HTML ids of
     fields and a list of messages for each.
@@ -130,7 +133,7 @@ class JSONFormResponse(JSONResponse):
     The ``__all__`` key is used for any form-wide error messages.
 
     An example failure::
-    
+
         {
             'success': False,
             'details': {
@@ -150,7 +153,7 @@ class JSONFormResponse(JSONResponse):
         """
         In addition to the standard :class:`JSONResponse` arguments, one
         additional keyword argument is available.
-        
+
         :param forms: A list of forms to validate against.
         """
         self.forms = kwargs.pop('forms')
@@ -158,7 +161,7 @@ class JSONFormResponse(JSONResponse):
 
     def build_json(self, *args, **kwargs):
         """
-        Check for form errors before building the JSON dictionary. 
+        Check for form errors before building the JSON dictionary.
         """
         self.get_form_errors()
         return super(JSONFormResponse, self).build_json(*args, **kwargs)
@@ -167,7 +170,7 @@ class JSONFormResponse(JSONResponse):
         """
         Validate the forms, adding the ``form_errors`` key to :attr:`details`
         containing any form errors.
-        
+
         If any of the forms do not validate, :attr:`success` will be set to
         ``False``.
         """
