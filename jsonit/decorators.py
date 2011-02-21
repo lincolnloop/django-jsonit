@@ -17,7 +17,7 @@ def catch_ajax_exceptions(func):
             return func(request, *args, **kwargs)
         except Exception, e:
             if request.is_ajax():
-                return JSONResponse(exception=e)
+                return JSONResponse(request, exception=e)
             raise
 
     return dec
