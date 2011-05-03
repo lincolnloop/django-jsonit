@@ -46,7 +46,7 @@ If the project's ``DEBUG`` setting is ``False``, exception will just be set to
 """
 from django import http
 from django.contrib import messages
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from jsonit.encoder import encode
 
