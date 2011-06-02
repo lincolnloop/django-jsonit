@@ -85,10 +85,6 @@ class EncoderTest(TestCase):
 
     def test_custom_encoder(self):
         encode_dt = lambda d: d.strftime('%d %b %Y')
-        # For some totally crazy reason, the output from the encoder needs to
-        # be specifically cast to unicode under some circumstances. Almost like
-        # it's returning a lazy string or something. More investigation is
-        # probably necessary.
-        output = unicode(encode(datetime.datetime(1980, 1, 1),
-                                encoders={datetime.datetime: encode_dt}))
-        self.assertEqual(output, u'"01 Jan 1980"')
+        self.assertEqual(encode(datetime.datetime(1980, 1, 1),
+                                encoders=[(datetime.datetime, encode_dt)]),
+                         u'"01 Jan 1980"')

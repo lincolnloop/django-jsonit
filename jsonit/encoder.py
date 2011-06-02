@@ -4,6 +4,7 @@ import json
 from django.conf import settings
 from django.contrib.messages.storage.base import Message
 from django.utils.functional import Promise
+from django.utils.datastructures import SortedDict
 
 
 def encode_message(message):
@@ -11,30 +12,34 @@ def encode_message(message):
 
 
 class JsonitEncoder(json.JSONEncoder):
-    default_encoders = {
-        Promise: unicode,
-        Message: encode_message,
-        datetime.datetime: lambda d: d.isoformat(),
-        datetime.date: lambda d: d.isoformat(),
-    }
+    default_encoders = (
+        (Promise, unicode),
+        (Message, encode_message),
+        (datetime.datetime, lambda d: d.isoformat()),
+        (datetime.date, lambda d: d.isoformat()),
+    )
 
     def __init__(self, *args, **kwargs):
         """
         In addition to the standard JSONEncoder constructor arguments, this
         class uses the following keyword arguments::
 
-        :param extra_encoders: A dictionary of extra encoders to help convert
-            objects into JSON. Each key should be a class and each value a
-            conversion function for objects of that class.
+        :param extra_encoders: A list of two-element tuples containing of extra
+            encoders to help convert objects into JSON. Each tuple should
+            contain the class as the first element and the conversion function
+            for objects of that class as the second.
         """
-        self.encoders = self.default_encoders.copy()
+        self.encoders = self.default_encoders
         extra_encoders = kwargs.pop('extra_encoders', None)
         if extra_encoders:
-            self.encoders.update(extra_encoders)
+            classes = [encoder_tuple[0] for encoder_tuple in extra_encoders]
+            self.encoders = list(extra_encoders) + [
+                encoder_tuple for encoder_tuple in self.encoders
+                if not encoder_tuple[0] in classes]
         super(JsonitEncoder, self).__init__(*args, **kwargs)
 
     def default(self, o):
-        for cls, func in self.encoders.iteritems():
+        for cls, func in self.encoders:
             if isinstance(o, cls):
                 return func(o)
         super(JsonitEncoder, self).default(o)
