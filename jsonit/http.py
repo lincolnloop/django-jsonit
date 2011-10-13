@@ -2,20 +2,23 @@
 A JSON response always returns a JSON-encoded dictionary. The dictionary
 will always contain the following three keys:
 
-success
+``success``
+
     True or False
 
-details
+``details``
+
     A dictionary containing any success / failure details.
 
-messages
+``messages``
+
     A list of message dictionaries. Each message dictionary contains a
     ``class`` (a string of HTML classes) and a ``message`` key. This list will
     always be empty for successful responses where a if a suggested redirection
     URL is provided.
 
 If the response is successful then an additional key, ``redirect`` will also
-be provided which may be ``null` or contain a suggested next URL.
+be provided which may be ``null`` or contain a suggested next URL.
 
 An example success::
 
@@ -30,7 +33,7 @@ An example success::
 
 If an exception is passed (via the ``exception`` parameter), ``details`` and
 ``messages`` will be emptied, ``success`` will be set to ``False``, and an
-``exception`` key will be added to the response::
+``exception`` key will be added to the response.
 
 An example exception::
 
@@ -86,6 +89,7 @@ class JSONResponse(http.HttpResponse):
                                            content_type='application/json')
 
     def build_json(self, exception=None):
+        """Build the JSON dictionary."""
         content = {
             'success': self.success,
             'details': self.details,

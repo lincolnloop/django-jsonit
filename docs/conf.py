@@ -12,8 +12,14 @@
 # serve to show the default.
 
 import sys, os
+
+from django.conf import global_settings
+from django.core.management import setup_environ
+
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 from jsonit import get_version
+
+setup_environ(global_settings)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the

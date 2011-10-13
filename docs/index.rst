@@ -6,10 +6,18 @@
 Welcome to django-jsonit's documentation!
 =========================================
 
+JSONit is a set of helpers for working with JSON responses in Django.  It
+defines a uniform structure for your JSON responses and provides HttpResponse
+subclasses, middleware, class-based view mixins, and more to ease the process
+of integrating with your front-end code.  It requires no formal installation.
+Simply import the helper you need and go.
+
 Contents:
 
 .. toctree::
    :maxdepth: 2
+   
+   http-responses
 
 Indices and tables
 ==================
