@@ -16,7 +16,7 @@ import sys, os
 from django.conf import global_settings
 from django.core.management import setup_environ
 
-setup_environ(global_settings)
+setup_environ(global_settings, original_settings_path='django.conf.global_settings')
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
