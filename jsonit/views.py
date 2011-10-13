@@ -11,7 +11,7 @@ class AJAXTemplateResponseMixin(object):
     For an AJAX request the template list is altered to look for alternate
     templates first and the ``is_ajax`` context variable is set to ``True``.
     The format of the names of these alternate templates are defined in the
-    :attr:`ajax_template_format`` attribute.
+    :attr:`ajax_template_format` attribute.
 
     For example, if a view was going to pick a template from
     ``['custom/login.html', 'login.html']``, then an AJAX request will change
@@ -25,8 +25,9 @@ class AJAXTemplateResponseMixin(object):
 
     ``is_ajax``
         Set to ``True``
+        
     ``current_url``
-        The current URL, useful for explicitly setting HTML form ``action``s.
+        The current URL, useful for explicitly setting HTML form actions.
     """
     ajax_template_format = '%(name)s.ajax%(ext)s'
 

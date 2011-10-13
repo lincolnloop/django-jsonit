@@ -18,6 +18,9 @@ Contents:
    :maxdepth: 2
    
    http-responses
+   middleware
+   views
+   utils
 
 Indices and tables
 ==================

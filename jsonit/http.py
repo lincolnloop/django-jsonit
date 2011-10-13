@@ -20,10 +20,12 @@ will always contain the following three keys:
 If the response is successful then an additional key, ``redirect`` will also
 be provided which may be ``null`` or contain a suggested next URL.
 
-An example success::
+An example success:
+
+.. code-block:: js
 
     {
-        'success': True,
+        'success': true,
         'details': {},
         'messages': [
             {'class': '', 'message': 'some message'},
@@ -35,10 +37,12 @@ If an exception is passed (via the ``exception`` parameter), ``details`` and
 ``messages`` will be emptied, ``success`` will be set to ``False``, and an
 ``exception`` key will be added to the response.
 
-An example exception::
+An example exception:
+
+.. code-block:: js
 
     {
-        'success': False,
+        'success': false,
         'details': {},
         'messages': [],
         'exception': 'error message'
@@ -70,7 +74,7 @@ class JSONResponse(http.HttpResponse):
             to ``True``.
         :param exception: Used to build an exception JSON response. Not
             usually needed unless the need to handle exceptions manually
-            arises. See the :class:`JSONExceptionMiddleware` to handle AJAX
+            arises. See the :class:`~.JSONExceptionMiddleware` to handle AJAX
             exceptions automatically.
         :param redirect: The URL to which the JavaScript should redirect.
         :returns: An HTTPResponse containing a JSON encoded dictionary with a

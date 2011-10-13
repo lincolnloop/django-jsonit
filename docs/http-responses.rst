@@ -6,16 +6,16 @@ subclasses it provides.
 
 .. automodule:: jsonit.http
 
-JSONResponse
-************
+JSON Response
+*************
 
-.. autoclass:: jsonit.http.JSONResponse
+.. autoclass:: JSONResponse
     :special-members:
     :members:
 
-JSONFormResponse
-****************
+JSON Form Response
+******************
 
-.. autoclass:: jsonit.http.JSONFormResponse
+.. autoclass:: JSONFormResponse
     :special-members:
     :members:
