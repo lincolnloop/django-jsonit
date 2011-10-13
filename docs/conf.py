@@ -13,18 +13,17 @@
 
 import sys, os
 
-import django.conf.global_settings
+from django.conf import global_settings
 from django.core.management import setup_environ
 
-sys.path.append(os.path.dirname(os.path.dirname(__file__)))
-from jsonit import get_version
-
-setup_environ(django.conf.global_settings)
+setup_environ(global_settings)
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+
+from jsonit import get_version
 
 # -- General configuration -----------------------------------------------------
 
