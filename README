@@ -3,3 +3,5 @@ defines a uniform structure for your JSON responses and provides HttpResponse
 subclasses, middleware, class-based view mixins, and more to ease the process
 of integrating with your front-end code.  It requires no formal installation.
 Simply import the helper you need and go.
+
+Read the documentation at: http://readthedocs.org/docs/django-jsonit/en/latest/
