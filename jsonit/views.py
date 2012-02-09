@@ -63,8 +63,13 @@ class JSONResponseMixin(object):
 
     The :attr:`json_success` attribute is used as the JSON response success
     value (defaults to ``True``).
+
+    If the :attr:`ajax_redirect` attribute is set to ``True`` and the standard
+    response was a redirect, the JSON response will include this redirection
+    URL.
     """
     json_success = True
+    ajax_redirect = False
 
     def get_json_response(self, response, details=None, redirect=None):
         """
@@ -75,7 +80,8 @@ class JSONResponseMixin(object):
             initiated request.
         :param details: A dictionary of extra JSON details to return.
         :param redirect: The URL to send along as part of successful JSON
-            responses.
+            responses. Setting this overrides the standard behaviour of
+            :attr:`ajax_redirect`.
         :param forms: The forms to pass to the :class:`JSONFormResponse`. If no
             forms are provided (more specifically, if :meth:`get_forms` doesn't
             return any) then a :class:`JSONResponse` will be used instead.
@@ -87,6 +93,9 @@ class JSONResponseMixin(object):
             kwargs['success'] = self.json_success
         if redirect is not None:
             kwargs['redirect'] = redirect
+        elif self.ajax_redirect and str(response.status_code) in ('301',
+                '302'):
+            kwargs['redirect'] = response['Location']
         forms = self.get_forms()
         if forms:
             json_response_class = JSONFormResponse
@@ -105,21 +114,14 @@ class AJAXMixin(AJAXTemplateResponseMixin, JSONResponseMixin):
     helper methods for creating JSON responses.
 
     AJAX POST requests will receive a JSON response.
-
-    If the :attr:`ajax_redirect` attribute is set to ``True`` (default), a
-    successful JSON response will include the redirection URL.
     """
     ajax_redirect = True
 
-    def post(self, request, *args, **kwargs):
+    def post(self, *args, **kwargs):
         """
         If the request was AJAX initiated, return a :class:`JSONFormResponse`.
         """
-        response = super(AJAXMixin, self).post(request, *args, **kwargs)
-        if not request.is_ajax():
-            return response
-        if self.ajax_redirect and str(response.status_code) in ('301', '302'):
-            kwargs['redirect'] = response['Location']
+        response = super(AJAXMixin, self).post(*args, **kwargs)
         return self.get_json_response(response, **kwargs)
 
 
