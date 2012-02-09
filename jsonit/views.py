@@ -122,7 +122,7 @@ class AJAXMixin(AJAXTemplateResponseMixin, JSONResponseMixin):
         If the request was AJAX initiated, return a :class:`JSONFormResponse`.
         """
         response = super(AJAXMixin, self).post(*args, **kwargs)
-        return self.get_json_response(response, **kwargs)
+        return self.get_json_response(response)
 
 
 class AJAXFormMixin(AJAXMixin):
