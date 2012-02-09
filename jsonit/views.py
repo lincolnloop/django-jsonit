@@ -25,7 +25,7 @@ class AJAXTemplateResponseMixin(object):
 
     ``is_ajax``
         Set to ``True``
-        
+
     ``current_url``
         The current URL, useful for explicitly setting HTML form actions.
     """
@@ -33,8 +33,8 @@ class AJAXTemplateResponseMixin(object):
 
     def get_template_names(self, *args, **kwargs):
         """
-        Returns a list of template names to be used for the request. Must return
-        a list. May not be called if render_to_response is overridden.
+        Returns a list of template names to be used for the request. Must
+        return a list. May not be called if render_to_response is overridden.
         """
         template_list = super(AJAXTemplateResponseMixin, self)\
                                         .get_template_names(*args, **kwargs)
@@ -66,8 +66,7 @@ class JSONResponseMixin(object):
     """
     json_success = True
 
-    def get_json_response(self, response, details=None, redirect=None,
-                          forms=[]):
+    def get_json_response(self, response, details=None, redirect=None):
         """
         Override a standard response for AJAX initiated requests, instead
         returning a JSON response.
@@ -88,7 +87,7 @@ class JSONResponseMixin(object):
             kwargs['success'] = self.json_success
         if redirect is not None:
             kwargs['redirect'] = redirect
-        forms = self.get_forms(*forms)
+        forms = self.get_forms()
         if forms:
             json_response_class = JSONFormResponse
             kwargs['forms'] = forms
@@ -96,22 +95,16 @@ class JSONResponseMixin(object):
             json_response_class = JSONResponse
         return json_response_class(self.request, **kwargs)
 
-    def get_forms(self, *forms):
-        return forms
+    def get_forms(self):
+        return []
 
 
 class AJAXMixin(AJAXTemplateResponseMixin, JSONResponseMixin):
     """
     A mixin that will look for AJAX alternatives to templates and that provides
     helper methods for creating JSON responses.
-    """
 
-
-class AJAXFormView(AJAXMixin):
-    """
-    A mixin view for Django generic form views which will return a
-    :class:`JSONFormResponse` for AJAX initiated ``POST`` requests (and also
-    look for alternate AJAX versions of templates).
+    AJAX POST requests will receive a JSON response.
 
     If the :attr:`ajax_redirect` attribute is set to ``True`` (default), a
     successful JSON response will include the redirection URL.
@@ -122,11 +115,27 @@ class AJAXFormView(AJAXMixin):
         """
         If the request was AJAX initiated, return a :class:`JSONFormResponse`.
         """
-        response = super(AJAXFormView, self).post(request, *args, **kwargs)
+        response = super(AJAXMixin, self).post(request, *args, **kwargs)
         if not request.is_ajax():
             return response
-        form_class = self.get_form_class()
-        kwargs = {'forms': [self.get_form(form_class)]}
         if self.ajax_redirect and str(response.status_code) in ('301', '302'):
             kwargs['redirect'] = response['Location']
         return self.get_json_response(response, **kwargs)
+
+
+class AJAXFormMixin(AJAXMixin):
+    """
+    A mixin for Django generic form views which will return a
+    :class:`JSONFormResponse` for AJAX initiated ``POST`` requests (and also
+    look for alternate AJAX versions of templates).
+    """
+
+    def get_forms(self):
+        forms = super(AJAXFormMixin, self).get_forms()
+        form_class = self.get_form_class()
+        forms.append(self.get_form(form_class))
+        return forms
+
+
+# Legacy name
+AJAXFormView = AJAXFormMixin
