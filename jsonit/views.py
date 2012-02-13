@@ -78,7 +78,7 @@ class JSONResponseMixin(object):
 
         :param response: The standard response to return if this is not an AJAX
             initiated request.
-        :param details: A dictionary of extra JSON details to return.
+        :param details: An optional dictionary of extra JSON details to return.
         :param redirect: The URL to send along as part of successful JSON
             responses. Setting this overrides the standard behaviour of
             :attr:`ajax_redirect`.
@@ -88,6 +88,7 @@ class JSONResponseMixin(object):
         """
         if not self.request.is_ajax():
             return response
+        details = self.get_json_details(details or {}) or None
         kwargs = {'details': details}
         if self.json_success is not None:
             kwargs['success'] = self.json_success
@@ -106,6 +107,14 @@ class JSONResponseMixin(object):
 
     def get_forms(self):
         return []
+
+    def get_json_details(self, details):
+        """
+        Hook method used to amend or modify JSON details.
+
+        :param details: A dictionary of extra JSON details.
+        """
+        return details
 
 
 class AJAXMixin(AJAXTemplateResponseMixin, JSONResponseMixin):
