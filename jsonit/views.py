@@ -141,10 +141,20 @@ class AJAXFormMixin(AJAXMixin):
     look for alternate AJAX versions of templates).
     """
 
+    def form_valid(self, form, *args, **kwargs):
+        self.form = form
+        return super(AJAXFormMixin, self).form_valid(form=form, *args,
+            **kwargs)
+
+    def form_invalid(self, form, *args, **kwargs):
+        self.form = form
+        return super(AJAXFormMixin, self).form_invalid(form=form, *args,
+            **kwargs)
+
     def get_forms(self):
         forms = super(AJAXFormMixin, self).get_forms()
-        form_class = self.get_form_class()
-        forms.append(self.get_form(form_class))
+        if hasattr(self, 'form'):
+            forms.append(self.form)
         return forms
 
 
