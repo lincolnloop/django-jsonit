@@ -13,3 +13,5 @@ var
 sdist
 develop-eggs
 .installed.cfg
+.tox/*
+MANIFEST
