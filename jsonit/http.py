@@ -116,7 +116,7 @@ class JSONResponse(http.HttpResponse):
             content['extra_context'] = self.extra_context
         try:
             return encode(content)
-        except Exception, e:
+        except Exception as e:
             if exception is not None:
                 raise
             return self.build_json(e)
