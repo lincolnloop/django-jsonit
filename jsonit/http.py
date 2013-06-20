@@ -199,7 +199,7 @@ class JSONFormResponse(JSONResponse):
         for form in forms:
             for field, errors in form.errors.items():
                 self.success = False
-                if field is not '__all__':
+                if field != '__all__':
                     field = form[field].auto_id
                 if field:
                     form_errors = self.details.setdefault('form_errors', {})
