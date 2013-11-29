@@ -7,6 +7,7 @@ from django.contrib.messages.storage import base as messages_base
 from django.contrib.messages.storage.session import SessionStorage
 from django.http import HttpRequest
 from django.utils.functional import lazy
+from django.utils import six
 
 from jsonit.http import JSONResponse
 from jsonit.encoder import encode
@@ -72,7 +73,7 @@ class MessageTest(BaseTest):
 class EncoderTest(TestCase):
 
     def test_lazy(self):
-        test_msg = lazy(lambda: 'Test!', unicode)
+        test_msg = lazy(lambda: 'Test!', six.text_type)
         self.assertEqual(encode(test_msg()), '"Test!"')
 
     def test_datetime(self):
