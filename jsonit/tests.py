@@ -1,4 +1,5 @@
 import datetime
+import json
 from unittest import TestCase
 
 from django.contrib import messages
@@ -17,13 +18,11 @@ class BaseTest(TestCase):
     def setUp(self):
         self.request = HttpRequest()
         self.request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
+        self.request.META['SERVER_NAME'] = 'testserver'
+        self.request.META['SERVER_PORT'] = 80
 
 
 class JSONResponseTest(BaseTest):
-
-    def setUp(self):
-        self.request = HttpRequest()
-        self.request.META['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest'
 
     def test_success(self):
         response = JSONResponse(self.request)
@@ -45,6 +44,42 @@ class JSONResponseTest(BaseTest):
             response.content,
             '{"messages": [], "details": {"test": 1}, "success": true}'
         )
+
+    def test_redirect(self):
+        redirect_path = '/some/path/'
+        response = JSONResponse(self.request, redirect=redirect_path)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                'messages': [],
+                'details': {},
+                'success': True,
+                'redirect': "http://{}{}".format(self.request.META['SERVER_NAME'], redirect_path)
+            }
+        )
+
+    def test_exception(self):
+        exc_msg = "Something bad happened"
+        exc = Exception(exc_msg)
+        exc_response = {
+            'success': False,
+            'details': {},
+            'exception': exc_msg,
+            'messages': []
+        }
+        response = JSONResponse(self.request, exception=exc)
+        self.assertEqual(json.loads(response.content), exc_response)
+
+        # Test that success flag always False if exception provided
+        response = JSONResponse(self.request, exception=exc, success=True)
+        self.assertEqual(json.loads(response.content), exc_response)
+
+        # Test with Exception that has no message
+        exc_response['exception'] = 'Internal error: No message here'
+        exc = Exception("No message here")
+        del exc.message
+        response = JSONResponse(self.request, exception=exc)
+        self.assertEqual(json.loads(response.content), exc_response)
 
 
 class MessageTest(BaseTest):
