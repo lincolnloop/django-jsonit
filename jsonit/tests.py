@@ -6,10 +6,11 @@ from django.contrib import messages
 from django.contrib.messages.constants import DEFAULT_TAGS
 from django.contrib.messages.storage import base as messages_base
 from django.contrib.messages.storage.session import SessionStorage
+from django import forms
 from django.http import HttpRequest
 from django.utils.functional import lazy
 
-from jsonit.http import JSONResponse
+from jsonit.http import JSONResponse, JSONFormResponse
 from jsonit.encoder import encode
 
 
@@ -80,6 +81,55 @@ class JSONResponseTest(BaseTest):
         del exc.message
         response = JSONResponse(self.request, exception=exc)
         self.assertEqual(json.loads(response.content), exc_response)
+
+    def test_extra_context(self):
+        extra_context = ['green circle', 'blue square', 'black diamond']
+        response = JSONResponse(self.request, extra_context=extra_context)
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                'messages': [],
+                'details': {},
+                'success': True,
+                'extra_context': extra_context
+            }
+        )
+
+    def test_form_response(self):
+
+        class _TestForm(forms.Form):
+            somefield = forms.CharField()
+
+        # Invalid form - Response ``success`` flag should be False
+        # and ``details`` should contain ``form_errors``
+
+        form = _TestForm(data={})
+        response = JSONFormResponse(self.request, forms=[form])
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                'messages': [],
+                'details': {
+                    u'form_errors': {
+                        u'id_somefield': [u'This field is required.']
+                    }
+                },
+                'success': False,
+            }
+        )
+
+        # Submit valid form
+
+        form = _TestForm(data={'somefield': 'some text'})
+        response = JSONFormResponse(self.request, forms=[form])
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                'messages': [],
+                'details': {},
+                'success': True,
+            }
+        )
 
 
 class MessageTest(BaseTest):
