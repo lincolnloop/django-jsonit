@@ -131,6 +131,31 @@ class JSONResponseTest(BaseTest):
             }
         )
 
+        TestFormSet = forms.formsets.formset_factory(_TestForm)
+        formset = TestFormSet()
+        data={'form-TOTAL_FORMS': formset.total_form_count(),
+            'form-INITIAL_FORMS': 1,
+            'form-MAX_NUM_FORMS': formset.max_num
+        }
+        print data
+        formset = TestFormSet(data)
+        print "FS VALID ", formset.is_valid()
+        response = JSONFormResponse(self.request, forms=[formset])
+        self.assertEqual(
+            json.loads(response.content),
+            {
+                'messages': [],
+                'details': {
+                    u'form_errors': {
+                        u'id_form-0-somefield': [u'This field is required.']
+                    }
+                },
+                'success': False,
+            }
+        )
+
+
+        # TODO test behavior with unbound forms
 
 class MessageTest(BaseTest):
 

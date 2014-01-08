@@ -197,11 +197,22 @@ class JSONFormResponse(JSONResponse):
         """
         forms = self.forms or ()
         for form in forms:
-            for field, errors in form.errors.items():
-                self.success = False
-                if field != '__all__':
-                    field = form[field].auto_id
-                if field:
-                    form_errors = self.details.setdefault('form_errors', {})
-                    error_list = form_errors.setdefault(field, [])
-                    error_list.extend(errors)
+            forms_errors = form.errors
+            # FormSets provide errors as a list of dicts
+            if isinstance(forms_errors, list):
+                using_formset = True
+            else:
+                using_formset = False
+                forms_errors = [forms_errors]
+            for idx, errors_for_form in enumerate(forms_errors):
+                print errors_for_form
+                for field, errors in errors_for_form.items():
+                    print field, errors
+                    self.success = False
+                    if field != '__all__':
+                        _f = form[idx] if using_formset else form
+                        field = _f[field].auto_id
+                    if field:
+                        form_errors = self.details.setdefault('form_errors', {})
+                        error_list = form_errors.setdefault(field, [])
+                        error_list.extend(errors)
