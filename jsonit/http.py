@@ -205,9 +205,9 @@ class JSONFormResponse(JSONResponse):
                 using_formset = False
                 forms_errors = [forms_errors]
             for idx, errors_for_form in enumerate(forms_errors):
-                print errors_for_form
+                print(errors_for_form)
                 for field, errors in errors_for_form.items():
-                    print field, errors
+                    print('{0} {0}'.format(field, errors))
                     self.success = False
                     if field != '__all__':
                         _f = form[idx] if using_formset else form

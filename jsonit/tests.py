@@ -50,8 +50,8 @@ class JSONResponseTest(BaseTest):
     def test_redirect(self):
         redirect_path = '/some/path/'
         response = JSONResponse(self.request, redirect=redirect_path)
-        self.assertEqual(
-            json.loads(response.content),
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
             {
                 'messages': [],
                 'details': {},
@@ -70,24 +70,27 @@ class JSONResponseTest(BaseTest):
             'messages': []
         }
         response = JSONResponse(self.request, exception=exc)
-        self.assertEqual(json.loads(response.content), exc_response)
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')), exc_response)
 
         # Test that success flag always False if exception provided
         response = JSONResponse(self.request, exception=exc, success=True)
-        self.assertEqual(json.loads(response.content), exc_response)
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')), exc_response)
 
         # Test with Exception that has no message
         exc_response['exception'] = 'Internal error: No message here'
         exc = Exception("No message here")
         del exc.message
         response = JSONResponse(self.request, exception=exc)
-        self.assertEqual(json.loads(response.content), exc_response)
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')), exc_response)
 
     def test_extra_context(self):
         extra_context = ['green circle', 'blue square', 'black diamond']
         response = JSONResponse(self.request, extra_context=extra_context)
-        self.assertEqual(
-            json.loads(response.content),
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
             {
                 'messages': [],
                 'details': {},
@@ -106,8 +109,8 @@ class JSONResponseTest(BaseTest):
 
         form = _TestForm(data={})
         response = JSONFormResponse(self.request, forms=[form])
-        self.assertEqual(
-            json.loads(response.content),
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
             {
                 'messages': [],
                 'details': {
@@ -123,8 +126,8 @@ class JSONResponseTest(BaseTest):
 
         form = _TestForm(data={'somefield': 'some text'})
         response = JSONFormResponse(self.request, forms=[form])
-        self.assertEqual(
-            json.loads(response.content),
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
             {
                 'messages': [],
                 'details': {},
@@ -138,12 +141,12 @@ class JSONResponseTest(BaseTest):
             'form-INITIAL_FORMS': 1,
             'form-MAX_NUM_FORMS': formset.max_num
         }
-        print data
+        print(data)
         formset = TestFormSet(data)
-        print "FS VALID ", formset.is_valid()
+        print("FS VALID {}".format(formset.is_valid()))
         response = JSONFormResponse(self.request, forms=[formset])
-        self.assertEqual(
-            json.loads(response.content),
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
             {
                 'messages': [],
                 'details': {
