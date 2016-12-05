@@ -1,4 +1,5 @@
 import datetime
+import json
 from unittest import TestCase
 
 from django.contrib import messages
@@ -7,6 +8,7 @@ from django.contrib.messages.storage import base as messages_base
 from django.contrib.messages.storage.session import SessionStorage
 from django.http import HttpRequest
 from django.utils.functional import lazy
+from django.utils import six
 
 from jsonit.http import JSONResponse
 from jsonit.encoder import encode
@@ -27,23 +29,23 @@ class JSONResponseTest(BaseTest):
 
     def test_success(self):
         response = JSONResponse(self.request)
-        self.assertEqual(
-            response.content,
-            '{"messages": [], "details": {}, "success": true}'
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
+            {"messages": [], "details": {}, "success": True}
         )
 
     def test_not_success(self):
         response = JSONResponse(self.request, success=False)
-        self.assertEqual(
-            response.content,
-            '{"messages": [], "details": {}, "success": false}'
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
+            {"messages": [], "details": {}, "success": False}
         )
 
     def test_details(self):
         response = JSONResponse(self.request, details={'test': 1})
-        self.assertEqual(
-            response.content,
-            '{"messages": [], "details": {"test": 1}, "success": true}'
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
+            {"messages": [], "details": {"test": 1}, "success": True}
         )
 
 
@@ -62,17 +64,20 @@ class MessageTest(BaseTest):
     def test_messages(self):
         messages.info(self.request, 'Hello')
         response = JSONResponse(self.request)
-        self.assertEqual(
-            response.content,
-            '{"messages": [{"message": "Hello", "class": "info"}], '
-            '"details": {}, "success": true}'
+        self.assertDictEqual(
+            json.loads(response.content.decode('utf-8')),
+            {
+                "messages": [{"message": "Hello", "class": "info"}],
+                "details": {},
+                "success": True,
+            }
         )
 
 
 class EncoderTest(TestCase):
 
     def test_lazy(self):
-        test_msg = lazy(lambda: 'Test!', unicode)
+        test_msg = lazy(lambda: 'Test!', six.text_type)
         self.assertEqual(encode(test_msg()), '"Test!"')
 
     def test_datetime(self):

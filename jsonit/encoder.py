@@ -4,6 +4,7 @@ import json
 from django.conf import settings
 from django.contrib.messages.storage.base import Message
 from django.utils.functional import Promise
+from django.utils import six
 
 
 def encode_message(message):
@@ -12,7 +13,7 @@ def encode_message(message):
 
 class JsonitEncoder(json.JSONEncoder):
     default_encoders = (
-        (Promise, unicode),
+        (Promise, six.text_type),
         (Message, encode_message),
         (datetime.datetime, lambda d: d.isoformat()),
         (datetime.date, lambda d: d.isoformat()),
