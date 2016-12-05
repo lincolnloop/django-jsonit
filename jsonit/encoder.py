@@ -4,7 +4,6 @@ import json
 from django.conf import settings
 from django.contrib.messages.storage.base import Message
 from django.utils.functional import Promise
-from django.utils.datastructures import SortedDict
 
 
 def encode_message(message):
